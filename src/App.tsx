@@ -26,12 +26,9 @@ function App() {
   const streamRef = useRef<MediaStream | null>(null);
 
   const kelasOptions = [
-    'X IPA 1', 'X IPA 2', 'X IPA 3',
-    'X IPS 1', 'X IPS 2',
-    'XI IPA 1', 'XI IPA 2', 'XI IPA 3',
-    'XI IPS 1', 'XI IPS 2',
-    'XII IPA 1', 'XII IPA 2', 'XII IPA 3',
-    'XII IPS 1', 'XII IPS 2'
+    'X 1', 'X 2',
+    'XI 1', 'XI 2',
+    'XII IPA ', 'XII IPs 2',
   ];
 
   const getCurrentTimeWIB = () => {
