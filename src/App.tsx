@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Camera, Clock, User, School, CheckCircle, AlertCircle, Upload, MapPin } from 'lucide-react';
 import AnalogClock from './components/AnalogClock';
 
@@ -101,10 +101,9 @@ function App() {
         } 
       });
       
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        streamRef.current = stream;
-      }
+      // Simpan stream dulu; elemen <video> baru dirender setelah isCapturing = true,
+      // sehingga stream dipasang ke video di useEffect di bawah.
+      streamRef.current = stream;
       setIsCapturing(true);
     } catch (error) {
       console.error('Error accessing camera:', error);
@@ -112,8 +111,27 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (isCapturing && video && streamRef.current) {
+      video.srcObject = streamRef.current;
+      video.play().catch((err) => console.error('Error playing video:', err));
+    }
+  }, [isCapturing]);
+
+  useEffect(() => {
+    // Matikan kamera saat komponen di-unmount
+    return () => {
+      streamRef.current?.getTracks().forEach(track => track.stop());
+    };
+  }, []);
+
   const capturePhoto = useCallback(() => {
     if (videoRef.current) {
+      if (!videoRef.current.videoWidth || !videoRef.current.videoHeight) {
+        alert('Kamera belum siap, tunggu sebentar lalu coba lagi.');
+        return;
+      }
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
       
@@ -284,6 +302,7 @@ function App() {
                       ref={videoRef}
                       autoPlay
                       playsInline
+                      muted
                       className="w-full h-64 object-cover"
                     />
                     <div className="absolute inset-0 border-4 border-blue-500 rounded-xl pointer-events-none"></div>
